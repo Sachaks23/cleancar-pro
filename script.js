@@ -201,9 +201,9 @@ function updateRecap() {
    EMAILJS CONFIG  ← remplace par tes vraies clés
 ──────────────────────────────────────────── */
 const EJS_PUBLIC_KEY      = 'YAxxJAqL2jwqZg6eG';
-const EJS_SERVICE_ID      = 'VOTRE_SERVICE_ID';
-const EJS_TEMPLATE_OWNER  = 'VOTRE_TEMPLATE_OWNER';   // notif à toi
-const EJS_TEMPLATE_CLIENT = 'VOTRE_TEMPLATE_CLIENT';  // confirmation au client
+const EJS_SERVICE_ID      = 'service_i4ynf29';
+const EJS_TEMPLATE_OWNER  = 'template_idwpncl';   // notif à toi
+const EJS_TEMPLATE_CLIENT = 'template_derwsbl';  // confirmation au client
 
 function submitForm(e) {
   e.preventDefault();
