@@ -226,7 +226,8 @@ function submitForm(e) {
   const params = {
     prenom, nom, tel, email,
     vehicule, offre, marque, message, creneau,
-    full_name: `${prenom} ${nom}`
+    full_name: `${prenom} ${nom}`,
+    name: `${prenom} ${nom}`
   };
 
   // Email à toi (owner)
