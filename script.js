@@ -221,7 +221,7 @@ function submitForm(e) {
   btn.textContent = 'Envoi en cours…';
   btn.disabled = true;
 
-  emailjs.init(EJS_PUBLIC_KEY);
+  emailjs.init({ publicKey: EJS_PUBLIC_KEY });
 
   const params = {
     prenom, nom, tel, email,
