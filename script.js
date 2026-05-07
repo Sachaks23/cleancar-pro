@@ -10,6 +10,7 @@ const FOOTER_HTML = `
 </footer>`;
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (typeof emailjs !== 'undefined') emailjs.init({ publicKey: EJS_PUBLIC_KEY });
   initNavbar();
   initReveal();
   initStats();
@@ -220,8 +221,6 @@ function submitForm(e) {
   const btn = document.querySelector('#resaForm .btn-submit');
   btn.textContent = 'Envoi en cours…';
   btn.disabled = true;
-
-  emailjs.init({ publicKey: EJS_PUBLIC_KEY });
 
   const params = {
     prenom, nom, tel, email,
