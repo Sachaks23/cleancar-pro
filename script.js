@@ -418,22 +418,22 @@ function submitForm(e) {
     calendar_link
   };
 
-  // Email à toi (owner)
-  const sendOwner = emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_OWNER, params);
-
-  // Email au client seulement s'il a fourni son email
-  const sendClient = email
-    ? emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_CLIENT, params)
-    : Promise.resolve();
-
-  Promise.all([sendOwner, sendClient])
+  // Email à toi (owner) — bloquant
+  emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_OWNER, params)
     .then(() => {
-      // Sauvegarder le créneau dans Firebase pour le bloquer
+      // Sauvegarde Firebase
       if (selDay && selTime && cancelToken) {
         saveBookingToFirebase(selDay, selTime, {
           prenom, nom, tel, email, vehicule, offre, marque, creneau,
           cancelToken, cancelUrl, timestamp: Date.now()
         });
+      }
+      // Email confirmation client — non bloquant (si email fourni)
+      if (email) {
+        emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_CLIENT, {
+          ...params,
+          to_email: email
+        }).catch(() => {});
       }
       document.getElementById('resaForm').style.display = 'none';
       document.getElementById('successPanel').style.display = 'block';
