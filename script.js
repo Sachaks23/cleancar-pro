@@ -101,20 +101,23 @@ const FIREBASE_CONFIG = {
 let db = null;
 let bookedSlots = {}; // { "2024-01-15_10:00": { ... } }
 
-// Retourne la date réelle (YYYY-MM-DD) du jour dans la semaine EN COURS (Lun–Dim)
+// Retourne la date réelle (YYYY-MM-DD) pour un jour, en tenant compte du weekOffset
 function getDateForDay(dayName) {
   const map = { 'Lun': 1, 'Mar': 2, 'Mer': 3, 'Jeu': 4, 'Ven': 5, 'Sam': 6, 'Dim': 0 };
-  const today   = new Date();
-  const todayDay = today.getDay(); // 0=Dim, 1=Lun…
-  // Trouver le lundi de cette semaine
+  const today    = new Date();
+  const todayDay = today.getDay();
   const mondayDiff = todayDay === 0 ? -6 : 1 - todayDay;
   const monday = new Date(today);
-  monday.setDate(today.getDate() + mondayDiff);
-  // Décalage du jour cible depuis ce lundi (Lun=0, Mar=1…, Dim=6)
+  monday.setDate(today.getDate() + mondayDiff + weekOffset * 7);
   const targetOff = map[dayName] === 0 ? 6 : map[dayName] - 1;
   const d = new Date(monday);
   d.setDate(monday.getDate() + targetOff);
   return d.toISOString().split('T')[0];
+}
+
+function getFirstAvailableDay() {
+  const todayStr = new Date().toISOString().split('T')[0];
+  return DAYS.find(d => getDateForDay(d) >= todayStr) || DAYS[0];
 }
 
 // Nom court du jour d'aujourd'hui
@@ -164,7 +167,7 @@ const DAYS  = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 const TIMES = Array.from({length: 12}, (_, i) => `${String(10 + i).padStart(2,'0')}:00`);
 // 10:00 → 21:00 (créneaux d'1h, dernier départ 21h = fin 22h)
 
-let selDay = getTodayDayName(), selTime = null;
+let selDay = getTodayDayName(), selTime = null, weekOffset = 0;
 
 function is2h() {
   const offre = document.getElementById('offre');
@@ -176,14 +179,13 @@ function addHour(time, n) {
   return `${String(h + n).padStart(2,'0')}:00`;
 }
 
-function initCalendar() {
-  const daySel   = document.getElementById('daySelector');
-  const timeGrid = document.getElementById('timeGrid');
-  if (!daySel || !timeGrid) return;
-
-  // Jours avec vraies dates
+function buildDayButtons() {
+  const daySel = document.getElementById('daySelector');
+  if (!daySel) return;
+  daySel.innerHTML = '';
   const todayStr = new Date().toISOString().split('T')[0];
-  DAYS.forEach((day) => {
+
+  DAYS.forEach(day => {
     const date  = getDateForDay(day);
     const d     = new Date(date + 'T12:00:00');
     const dd    = String(d.getDate()).padStart(2,'0');
@@ -210,6 +212,50 @@ function initCalendar() {
     }
     daySel.appendChild(btn);
   });
+
+  // Mettre à jour le label de semaine et l'état des flèches
+  const monDate = getDateForDay('Lun');
+  const sunDate = getDateForDay('Dim');
+  const fmt = str => { const d = new Date(str + 'T12:00:00'); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; };
+  const lbl = document.getElementById('weekLabel');
+  if (lbl) lbl.textContent = `${fmt(monDate)} – ${fmt(sunDate)}`;
+  const prevBtn = document.getElementById('prevWeek');
+  if (prevBtn) prevBtn.disabled = weekOffset === 0;
+}
+
+function initCalendar() {
+  const daySel   = document.getElementById('daySelector');
+  const timeGrid = document.getElementById('timeGrid');
+  if (!daySel || !timeGrid) return;
+
+  // Navigation semaine (flèches)
+  daySel.insertAdjacentHTML('beforebegin', `
+    <div class="week-nav">
+      <button class="week-arrow" id="prevWeek" type="button" disabled>&#8592;</button>
+      <span class="week-label" id="weekLabel"></span>
+      <button class="week-arrow" id="nextWeek" type="button">&#8594;</button>
+    </div>`);
+
+  document.getElementById('prevWeek').addEventListener('click', () => {
+    if (weekOffset === 0) return;
+    weekOffset--;
+    selTime = null;
+    clearTimeSelection();
+    if (weekOffset === 0) selDay = getFirstAvailableDay();
+    buildDayButtons();
+    refreshSlotAvailability();
+  });
+
+  document.getElementById('nextWeek').addEventListener('click', () => {
+    weekOffset++;
+    selTime = null;
+    clearTimeSelection();
+    buildDayButtons();
+    refreshSlotAvailability();
+  });
+
+  // Construire les boutons jours
+  buildDayButtons();
 
   // Créneaux
   TIMES.forEach((t, idx) => {

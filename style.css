@@ -490,6 +490,11 @@ a { text-decoration: none; }
 .dispo-time-badge { font-size: .92rem; font-weight: 800; color: var(--gold); white-space: nowrap; }
 .slot-section-label { font-size: .72rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
 .day-selector { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+.week-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.week-arrow { background: var(--bg3); border: 1px solid var(--b); border-radius: 8px; color: var(--text); width: 34px; height: 34px; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: all .15s; flex-shrink: 0; }
+.week-arrow:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.week-arrow:disabled { opacity: .3; cursor: not-allowed; }
+.week-label { font-size: .8rem; font-weight: 600; color: var(--text2); text-align: center; flex: 1; }
 .day-btn { flex: 1; min-width: 42px; padding: 8px 4px; text-align: center; background: var(--bg3); border: 1px solid var(--b); border-radius: 8px; cursor: pointer; transition: all .15s; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .day-btn:hover { border-color: var(--b2); }
 .day-btn.active { background: var(--gold); border-color: var(--gold); }
