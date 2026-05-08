@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
   initReveal();
   initStats();
-  if (document.getElementById('daySelector')) initCalendar();
+  if (document.getElementById('daySelector')) { initCalendar(); initFirebase(); }
   if (document.querySelector('.slider-wrap')) initSliders();
   if (document.getElementById('reviewForm')) initReviews();
 });
@@ -85,6 +85,68 @@ function initStats() {
   if (statsBar) obs.observe(statsBar);
 }
 
+/* ────────────────────────────────────────────
+   FIREBASE CONFIG  ← remplace par tes vraies valeurs
+──────────────────────────────────────────── */
+const FIREBASE_CONFIG = {
+  apiKey:            'FIREBASE_API_KEY',
+  authDomain:        'FIREBASE_PROJECT_ID.firebaseapp.com',
+  databaseURL:       'https://FIREBASE_PROJECT_ID-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId:         'FIREBASE_PROJECT_ID',
+  storageBucket:     'FIREBASE_PROJECT_ID.appspot.com',
+  messagingSenderId: 'FIREBASE_SENDER_ID',
+  appId:             'FIREBASE_APP_ID'
+};
+
+let db = null;
+let bookedSlots = {}; // { "2024-01-15_10:00": { ... } }
+
+// Retourne la date réelle (YYYY-MM-DD) correspondant au jour affiché
+function getDateForDay(dayName) {
+  const map = { 'Lun': 1, 'Mar': 2, 'Mer': 3, 'Jeu': 4, 'Ven': 5, 'Sam': 6, 'Dim': 0 };
+  const today = new Date();
+  let diff = (map[dayName] - today.getDay() + 7) % 7;
+  if (diff === 0 && today.getHours() >= 22) diff = 7;
+  const d = new Date(today);
+  d.setDate(today.getDate() + diff);
+  return d.toISOString().split('T')[0];
+}
+
+// Utilitaire Firebase réutilisable sur toutes les pages
+function getFirebaseDb(callback) {
+  if (typeof firebase === 'undefined' || FIREBASE_CONFIG.apiKey === 'FIREBASE_API_KEY') return;
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    callback(firebase.database());
+  } catch(e) { console.warn('Firebase error:', e); }
+}
+
+function initFirebase() {
+  if (!document.getElementById('daySelector')) return;
+  getFirebaseDb(database => {
+    db = database;
+    db.ref('bookings').on('value', snapshot => {
+      bookedSlots = snapshot.val() || {};
+      refreshSlotAvailability();
+    });
+  });
+}
+
+function generateToken() {
+  return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+}
+
+function saveBookingToFirebase(day, time, data) {
+  if (!db) return;
+  const date = getDateForDay(day);
+  const slotKey = `${date}_${time}`;
+  db.ref(`bookings/${slotKey}`).set(data);
+  if (is2h()) {
+    const nextKey = `${date}_${addHour(time, 1)}`;
+    db.ref(`bookings/${nextKey}`).set({ ...data, mainSlot: slotKey });
+  }
+}
+
 /*
    CALENDAR (Rendez-vous)
  */
@@ -109,15 +171,24 @@ function initCalendar() {
   const timeGrid = document.getElementById('timeGrid');
   if (!daySel || !timeGrid) return;
 
-  // Jours
-  DAYS.forEach(day => {
+  // Jours avec vraies dates
+  DAYS.forEach((day, i) => {
+    const date = getDateForDay(day);
+    const d    = new Date(date + 'T12:00:00');
+    const dd   = String(d.getDate()).padStart(2,'0');
+    const mm   = String(d.getMonth() + 1).padStart(2,'0');
+
     const btn = document.createElement('button');
     btn.className = 'day-btn' + (day === selDay ? ' active' : '');
-    btn.textContent = day; btn.type = 'button';
+    btn.type = 'button';
+    btn.innerHTML = `<span class="day-name">${day}</span><span class="day-date">${dd}/${mm}</span>`;
     btn.addEventListener('click', () => {
       document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      selDay = day; updateRecap();
+      selDay = day;
+      selTime = null;
+      clearTimeSelection();
+      refreshSlotAvailability();
     });
     daySel.appendChild(btn);
   });
@@ -160,17 +231,31 @@ function clearTimeSelection() {
 function refreshSlotAvailability() {
   const btns = [...document.querySelectorAll('.time-btn')];
   const twoH = is2h();
+  const slotDate = getDateForDay(selDay);
+
   btns.forEach((btn, idx) => {
-    // Pour Int & Ext (2h) : le dernier créneau (21h) est indisponible car finirait à 23h
-    btn.disabled = twoH && idx === btns.length - 1;
+    const slotKey  = `${slotDate}_${btn.textContent}`;
+    const nextBtn  = btns[idx + 1];
+    const nextKey  = nextBtn ? `${slotDate}_${nextBtn.textContent}` : null;
+
+    const isBooked     = !!bookedSlots[slotKey];
+    const nextIsBooked = !!(twoH && nextKey && bookedSlots[nextKey]);
+    const isLastFor2h  = twoH && idx === btns.length - 1;
+
+    btn.disabled = isBooked || nextIsBooked || isLastFor2h;
+    btn.classList.toggle('booked', isBooked);
     if (btn.disabled) btn.classList.remove('active', 'active-2h');
   });
-  // Si un créneau était sélectionné et devient invalide → reset
-  if (twoH && selTime === '21:00') {
-    selTime = null;
-    clearTimeSelection();
+
+  // Si créneau sélectionné est devenu indisponible → reset
+  if (selTime) {
+    const selKey = `${slotDate}_${selTime}`;
+    if (bookedSlots[selKey]) { selTime = null; clearTimeSelection(); }
   }
-  // Rafraîchir le 2h highlight si déjà un créneau choisi
+  // Si formule 2h et dernier créneau sélectionné → reset
+  if (twoH && selTime === '21:00') { selTime = null; clearTimeSelection(); }
+
+  // Rafraîchir le 2h highlight
   if (selTime && twoH) {
     const active = [...btns].find(b => b.textContent === selTime);
     if (active) {
@@ -178,9 +263,9 @@ function refreshSlotAvailability() {
       if (next && next.classList.contains('time-btn')) next.classList.add('active-2h');
     }
   }
-  if (selTime && !twoH) {
-    btns.forEach(b => b.classList.remove('active-2h'));
-  }
+  if (selTime && !twoH) btns.forEach(b => b.classList.remove('active-2h'));
+
+  updateRecap();
 }
 
 function updateRecap() {
@@ -239,6 +324,18 @@ function submitForm(e) {
 
   Promise.all([sendOwner, sendClient])
     .then(() => {
+      // Sauvegarder le créneau dans Firebase pour le bloquer
+      if (selDay && selTime) {
+        const cancelToken = generateToken();
+        const date = getDateForDay(selDay);
+        const slotKey = `${date}_${selTime}`;
+        const cancelUrl = `${window.location.origin}/annuler.html?id=${encodeURIComponent(slotKey)}&token=${cancelToken}`;
+        saveBookingToFirebase(selDay, selTime, {
+          prenom, nom, tel, email, vehicule, offre, marque, creneau,
+          cancelToken, cancelUrl, timestamp: Date.now()
+        });
+        // Mettre à jour l'email client avec le lien d'annulation si possible
+      }
       document.getElementById('resaForm').style.display = 'none';
       document.getElementById('successPanel').style.display = 'block';
       const nameEl = document.getElementById('successName');

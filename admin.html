@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CleanCar Pro — Admin</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    .admin-wrap { max-width: 760px; margin: 120px auto 80px; padding: 0 24px; }
+    .admin-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 32px; }
+    .booking-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: var(--bg2); border: 1px solid var(--b); border-radius: 14px; padding: 18px 20px; margin-bottom: 12px; }
+    .booking-info { display: flex; flex-direction: column; gap: 4px; }
+    .booking-info strong { font-size: .95rem; color: var(--text); }
+    .booking-info span { font-size: .82rem; color: var(--text2); }
+    .booking-date { font-size: .78rem; font-weight: 700; color: var(--gold); background: rgba(26,114,216,.1); border-radius: 6px; padding: 3px 8px; display: inline-block; margin-bottom: 4px; }
+    .btn-cancel { background: rgba(229,85,85,.12); color: #e55; border: 1px solid rgba(229,85,85,.3); border-radius: 8px; padding: 8px 16px; font-size: .82rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all .15s; }
+    .btn-cancel:hover { background: rgba(229,85,85,.22); }
+    .login-wrap { max-width: 340px; margin: 180px auto 0; text-align: center; }
+    .login-wrap h2 { margin-bottom: 24px; }
+    .login-wrap input { width: 100%; padding: 12px 16px; background: var(--bg2); border: 1px solid var(--b2); border-radius: 10px; color: var(--text); font-size: .95rem; margin-bottom: 12px; }
+    .empty-msg { text-align: center; color: var(--text2); padding: 40px 0; }
+    .admin-stats { display: flex; gap: 16px; margin-bottom: 28px; }
+    .stat-chip { background: var(--bg2); border: 1px solid var(--b); border-radius: 10px; padding: 14px 20px; flex: 1; }
+    .stat-chip .n { font-size: 1.6rem; font-weight: 800; color: var(--gold); }
+    .stat-chip .l { font-size: .78rem; color: var(--text2); margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginScreen">
+  <h2>Admin CleanCar Pro</h2>
+  <input type="password" id="adminPass" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkPass()"/>
+  <button class="btn-submit" style="width:100%" onclick="checkPass()">Entrer →</button>
+  <p id="loginErr" style="color:#e55;margin-top:10px;font-size:.85rem;display:none">Mot de passe incorrect.</p>
+</div>
+
+<!-- PANEL ADMIN -->
+<div class="admin-wrap" id="adminPanel" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+    <div class="admin-title">📋 Rendez-vous à venir</div>
+    <button class="btn-ghost-sm" onclick="logout()">Déconnexion</button>
+  </div>
+  <div class="admin-stats">
+    <div class="stat-chip"><div class="n" id="statTotal">–</div><div class="l">RDV à venir</div></div>
+    <div class="stat-chip"><div class="n" id="statToday">–</div><div class="l">Aujourd'hui</div></div>
+  </div>
+  <div id="bookingsList"><p style="color:var(--text2)">Chargement…</p></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="script.js"></script>
+<script>
+const ADMIN_PASSWORD = 'cleancar2025'; // ← change si tu veux
+
+function checkPass() {
+  const val = document.getElementById('adminPass').value;
+  if (val === ADMIN_PASSWORD) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display  = 'block';
+    loadBookings();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+function logout() {
+  document.getElementById('adminPanel').style.display  = 'none';
+  document.getElementById('loginScreen').style.display = 'block';
+  document.getElementById('adminPass').value = '';
+}
+
+function formatSlotKey(key) {
+  const [date, time] = key.split('_');
+  const d = new Date(date + 'T12:00:00');
+  const jours = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  return jours[d.getDay()] + ' ' + d.toLocaleDateString('fr-FR') + ' · ' + time;
+}
+
+function loadBookings() {
+  getFirebaseDb(database => {
+    database.ref('bookings').once('value', snapshot => {
+      const all = snapshot.val() || {};
+      renderBookings(all);
+    });
+  });
+}
+
+function renderBookings(all) {
+  const now      = Date.now();
+  const todayStr = new Date().toISOString().split('T')[0];
+  const list     = document.getElementById('bookingsList');
+
+  const entries = Object.entries(all)
+    .filter(([key, val]) => !val.mainSlot) // skip 2nd slot of 2h bookings
+    .map(([key, val]) => ({ key, ...val }))
+    .filter(b => {
+      const [date, time] = b.key.split('_');
+      return new Date(date + 'T' + time + ':00').getTime() > now;
+    })
+    .sort((a, b) => a.key.localeCompare(b.key));
+
+  // Stats
+  document.getElementById('statTotal').textContent = entries.length;
+  document.getElementById('statToday').textContent = entries.filter(b => b.key.startsWith(todayStr)).length;
+
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty-msg">Aucun rendez-vous à venir.</div>';
+    return;
+  }
+
+  list.innerHTML = entries.map(b => {
+    const [date, time] = b.key.split('_');
+    const apptTime = new Date(date + 'T' + time + ':00');
+    const hoursLeft = (apptTime - Date.now()) / 3600000;
+    const canCancel = hoursLeft >= 24;
+    return `
+      <div class="booking-row">
+        <div class="booking-info">
+          <span class="booking-date">${formatSlotKey(b.key)}</span>
+          <strong>${b.prenom || ''} ${b.nom || ''} — ${b.tel || ''}</strong>
+          <span>${b.offre || '–'} · ${b.vehicule || '–'}</span>
+          ${b.email ? '<span>' + b.email + '</span>' : ''}
+          ${b.marque ? '<span>🚗 ' + b.marque + '</span>' : ''}
+          ${b.message ? '<span>💬 ' + b.message + '</span>' : ''}
+        </div>
+        <button onclick="cancelBooking('${b.key}')" class="btn-cancel">
+          Annuler
+        </button>
+      </div>`;
+  }).join('');
+}
+
+function cancelBooking(slotKey) {
+  const label = formatSlotKey(slotKey);
+  if (!confirm('Annuler le RDV du ' + label + ' ?')) return;
+
+  getFirebaseDb(database => {
+    const [date, time] = slotKey.split('_');
+    const h       = parseInt(time.split(':')[0]);
+    const nextKey = date + '_' + String(h + 1).padStart(2, '0') + ':00';
+
+    database.ref('bookings/' + slotKey).remove().then(() => {
+      database.ref('bookings/' + nextKey).once('value', snap => {
+        const next = snap.val();
+        if (next && next.mainSlot === slotKey) database.ref('bookings/' + nextKey).remove();
+      });
+      loadBookings();
+    }).catch(err => alert('Erreur : ' + err.message));
+  });
+}
+</script>
+</body>
+</html>

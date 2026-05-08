@@ -490,19 +490,25 @@ a { text-decoration: none; }
 .dispo-time-badge { font-size: .92rem; font-weight: 800; color: var(--gold); white-space: nowrap; }
 .slot-section-label { font-size: .72rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
 .day-selector { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
-.day-btn { flex: 1; min-width: 36px; padding: 9px 4px; text-align: center; background: var(--bg3); border: 1px solid var(--b); border-radius: 8px; font-size: .76rem; font-weight: 700; color: var(--text2); cursor: pointer; transition: all .15s; }
-.day-btn:hover { border-color: var(--b2); color: var(--text); }
-.day-btn.active { background: var(--gold); color: #fff; border-color: var(--gold); }
+.day-btn { flex: 1; min-width: 42px; padding: 8px 4px; text-align: center; background: var(--bg3); border: 1px solid var(--b); border-radius: 8px; cursor: pointer; transition: all .15s; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.day-btn:hover { border-color: var(--b2); }
+.day-btn.active { background: var(--gold); border-color: var(--gold); }
+.day-name { font-size: .74rem; font-weight: 700; color: var(--text2); line-height: 1; }
+.day-date { font-size: .66rem; font-weight: 500; color: var(--text3); line-height: 1; }
+.day-btn:hover .day-name, .day-btn:hover .day-date { color: var(--text); }
+.day-btn.active .day-name, .day-btn.active .day-date { color: #fff; }
 .time-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; }
 .time-btn { padding: 8px 2px; text-align: center; background: var(--bg3); border: 1px solid var(--b); border-radius: 7px; font-size: .74rem; font-weight: 600; color: var(--text2); cursor: pointer; transition: all .15s; }
 .time-btn:hover { border-color: rgba(26,114,216,.4); color: var(--text); }
 .time-btn.active { background: rgba(26,114,216,.14); border-color: var(--gold); color: var(--gold); font-weight: 700; }
 .time-btn.active-2h { background: rgba(26,114,216,.07); border-color: rgba(26,114,216,.4); color: var(--gold2); font-weight: 600; }
 .time-btn:disabled { opacity: .3; cursor: not-allowed; }
+.time-btn.booked { opacity: .25; cursor: not-allowed; text-decoration: line-through; }
 .slot-legend { display: flex; gap: 16px; margin-top: 10px; font-size: .74rem; color: var(--text3); }
 .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
 .legend-dot.free { background: var(--bg3); border: 1px solid var(--b2); }
 .legend-dot.chosen { background: var(--gold); }
+.legend-dot.booked { background: #333; border: 1px solid #444; }
 .info-block { background: var(--bg2); border: 1px solid var(--b); border-radius: var(--rxl); padding: 28px; margin-top: 20px; }
 .info-block h4 { font-size: .95rem; font-weight: 800; margin-bottom: 18px; }
 .info-list { display: flex; flex-direction: column; gap: 14px; }

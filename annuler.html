@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CleanCar Pro — Annuler mon rendez-vous</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><img src="logo.png" alt="CleanCar Pro" class="logo-img"/></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="offres.html">Offres</a></li>
+      <li><a href="tarifs.html">Tarifs</a></li>
+      <li><a href="avant-apres.html">Avant / Après</a></li>
+      <li><a href="rendez-vous.html">Rendez-vous</a></li>
+    </ul>
+    <a href="rendez-vous.html" class="nav-cta">Prendre RDV →</a>
+    <button class="burger" id="burgerBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="mobile-nav" id="mobileNav">
+    <a href="index.html">Accueil</a>
+    <a href="offres.html">Offres</a>
+    <a href="tarifs.html">Tarifs</a>
+    <a href="avant-apres.html">Avant / Après</a>
+    <a href="rendez-vous.html">Rendez-vous</a>
+    <a href="rendez-vous.html" class="mobile-cta-link">Prendre RDV →</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="section-tag">Annulation</div>
+    <h1>Annuler mon rendez-vous</h1>
+    <p>Vérification de votre créneau en cours…</p>
+  </div>
+</div>
+
+<section class="section-light">
+  <div class="container">
+    <div id="cancelContent" style="max-width:520px;margin:0 auto;padding:60px 0;text-align:center">
+      <p style="color:var(--text2)">Chargement…</p>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <span>© 2025 CleanCar Pro — Tous droits réservés</span>
+      <div class="footer-legal-links"><a href="mentions-legales.html">Mentions légales</a><span>·</span><a href="confidentialite.html">Confidentialité</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const params  = new URLSearchParams(window.location.search);
+  const slotId  = params.get('id');
+  const token   = params.get('token');
+  const el      = document.getElementById('cancelContent');
+
+  if (!slotId || !token) {
+    el.innerHTML = '<p style="color:var(--text2)">Lien invalide ou incomplet.</p>';
+    return;
+  }
+
+  setTimeout(() => {
+    getFirebaseDb(database => {
+      database.ref('bookings/' + slotId).once('value', snapshot => {
+        const booking = snapshot.val();
+
+        // RDV introuvable (déjà annulé ?)
+        if (!booking) {
+          el.innerHTML = `
+            <div style="font-size:2.5rem;margin-bottom:20px">✅</div>
+            <h3 style="margin-bottom:10px">Rendez-vous déjà annulé</h3>
+            <p style="color:var(--text2)">Ce créneau a déjà été libéré.</p>
+            <a href="rendez-vous.html" class="btn-gold" style="display:inline-block;margin-top:28px">Reprendre un RDV →</a>`;
+          return;
+        }
+
+        // Token invalide
+        if (booking.cancelToken !== token) {
+          el.innerHTML = '<p style="color:#e55">Lien invalide ou expiré. Contactez-nous au 06 17 15 46 33.</p>';
+          return;
+        }
+
+        // Vérification du délai 24h
+        const [date, time] = slotId.split('_');
+        const appointmentTime = new Date(date + 'T' + time + ':00');
+        const hoursUntil = (appointmentTime - Date.now()) / 3600000;
+
+        if (hoursUntil < 24) {
+          el.innerHTML = `
+            <div style="font-size:2.5rem;margin-bottom:20px">⚠️</div>
+            <h3 style="margin-bottom:10px">Délai d'annulation dépassé</h3>
+            <p style="color:var(--text2);margin-bottom:16px">L'annulation en ligne n'est plus possible — votre rendez-vous est dans moins de 24h.</p>
+            <p style="color:var(--text2)">Pour annuler, appelez-nous directement :</p>
+            <a href="tel:0617154633" class="btn-gold" style="display:inline-block;margin-top:20px">📞 06 17 15 46 33</a>`;
+          return;
+        }
+
+        // Annulation possible
+        const dateStr = appointmentTime.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+        el.innerHTML = `
+          <div style="font-size:2.5rem;margin-bottom:20px">📅</div>
+          <h3 style="margin-bottom:10px">Annuler votre rendez-vous ?</h3>
+          <p style="color:var(--text2);margin-bottom:6px">${dateStr} à ${time}</p>
+          <p style="color:var(--text2);margin-bottom:28px">${booking.offre || ''}</p>
+          <button onclick="confirmCancel('${slotId}', '${token}')" class="btn-submit" style="max-width:320px;width:100%">
+            Confirmer l'annulation
+          </button>
+          <br>
+          <a href="index.html" style="display:inline-block;margin-top:18px;color:var(--text3);font-size:.85rem">← Retour au site</a>`;
+      });
+    });
+  }, 600);
+});
+
+function confirmCancel(slotId, token) {
+  const el = document.getElementById('cancelContent');
+  el.innerHTML = '<p style="color:var(--text2)">Annulation en cours…</p>';
+
+  getFirebaseDb(database => {
+    const [date, time] = slotId.split('_');
+    const h = parseInt(time.split(':')[0]);
+    const nextKey = date + '_' + String(h + 1).padStart(2, '0') + ':00';
+
+    database.ref('bookings/' + slotId).remove().then(() => {
+      // Vérifier si le créneau suivant est lié (formule 2h)
+      database.ref('bookings/' + nextKey).once('value', snap => {
+        const next = snap.val();
+        if (next && next.mainSlot === slotId) {
+          database.ref('bookings/' + nextKey).remove();
+        }
+      });
+      el.innerHTML = `
+        <div style="font-size:2.5rem;margin-bottom:20px">✅</div>
+        <h3 style="margin-bottom:10px">Rendez-vous annulé</h3>
+        <p style="color:var(--text2);margin-bottom:28px">Votre créneau a bien été libéré. À bientôt !</p>
+        <a href="rendez-vous.html" class="btn-gold" style="display:inline-block">Reprendre un RDV →</a>`;
+    }).catch(() => {
+      el.innerHTML = '<p style="color:#e55">Une erreur est survenue. Appelez le 06 17 15 46 33.</p>';
+    });
+  });
+}
+</script>
+</body>
+</html>
