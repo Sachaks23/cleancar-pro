@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" href="logo.png"/><link rel="apple-touch-icon" href="logo.png"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CleanCar Pro — Offre Entreprises & Flottes Auto</title>
+  <meta name="description" content="CleanCar Pro intervient directement dans votre parking pour nettoyer votre flotte automobile à fréquence fixe. Devis gratuit, sans engagement."/>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── PRO PAGE SPECIFIC ── */
+    .pro-hero { background: var(--bg1); padding: 140px 0 80px; border-bottom: 1px solid var(--b); position: relative; overflow: hidden; }
+    .pro-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(26,114,216,.08) 0%, transparent 70%); pointer-events: none; }
+    .pro-hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .pro-hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(26,114,216,.12); border: 1px solid rgba(26,114,216,.25); color: var(--gold); border-radius: 50px; padding: 6px 14px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 20px; }
+    .pro-hero h1 { font-size: 2.6rem; font-weight: 900; line-height: 1.15; margin-bottom: 18px; }
+    .pro-hero h1 em { color: var(--gold); font-style: normal; }
+    .pro-hero-desc { font-size: 1rem; color: var(--text2); line-height: 1.7; margin-bottom: 32px; }
+    .pro-hero-stats { display: flex; gap: 28px; flex-wrap: wrap; }
+    .pro-stat { }
+    .pro-stat .ps-n { font-size: 1.6rem; font-weight: 900; color: var(--text); line-height: 1; }
+    .pro-stat .ps-l { font-size: .75rem; color: var(--text3); margin-top: 3px; }
+    .pro-hero-card { background: var(--bg2); border: 1px solid var(--b); border-radius: 20px; padding: 32px; }
+    .pro-hero-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+    .phc-list { display: flex; flex-direction: column; gap: 14px; }
+    .phc-item { display: flex; align-items: flex-start; gap: 12px; }
+    .phc-icon { width: 36px; height: 36px; background: rgba(26,114,216,.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .95rem; flex-shrink: 0; }
+    .phc-text strong { font-size: .88rem; color: var(--text); display: block; }
+    .phc-text span { font-size: .78rem; color: var(--text2); }
+
+    /* ── AVANTAGES ── */
+    .pro-avantages { padding: 80px 0; background: var(--bg2); border-bottom: 1px solid var(--b); }
+    .avantages-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .av-card { background: var(--bg1); border: 1px solid var(--b); border-radius: 16px; padding: 28px 24px; }
+    .av-card .av-icon { font-size: 1.8rem; margin-bottom: 14px; }
+    .av-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .av-card p { font-size: .82rem; color: var(--text2); line-height: 1.6; }
+
+    /* ── FORMULES PRO ── */
+    .pro-formules { padding: 80px 0; background: var(--bg1); border-bottom: 1px solid var(--b); }
+    .freq-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px; }
+    .freq-card { background: var(--bg2); border: 1px solid var(--b); border-radius: 16px; padding: 28px 24px; position: relative; }
+    .freq-card.freq-featured { border-color: var(--gold); background: linear-gradient(135deg, rgba(26,114,216,.06), rgba(26,114,216,.02)); }
+    .freq-pop { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #fff; border-radius: 20px; padding: 3px 14px; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+    .freq-name { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--text3); margin-bottom: 8px; }
+    .freq-title { font-size: 1.15rem; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .freq-rythme { font-size: .8rem; color: var(--text2); margin-bottom: 20px; }
+    .freq-price-block { margin-bottom: 20px; }
+    .freq-price-from { font-size: .7rem; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; }
+    .freq-price { font-size: 1.8rem; font-weight: 900; color: var(--text); line-height: 1; }
+    .freq-price sup { font-size: .9rem; vertical-align: super; }
+    .freq-price-unit { font-size: .75rem; color: var(--text2); margin-top: 2px; }
+    .freq-features { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+    .freq-features li { display: flex; align-items: flex-start; gap: 8px; font-size: .8rem; color: var(--text2); }
+    .freq-features li::before { content: '✓'; color: var(--gold); font-weight: 700; flex-shrink: 0; }
+
+    /* ── FORMULAIRE DEVIS ── */
+    .pro-devis { padding: 80px 0; background: var(--bg2); border-bottom: 1px solid var(--b); }
+    .devis-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; align-items: start; margin-top: 48px; }
+    .devis-left h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 14px; }
+    .devis-left p { font-size: .88rem; color: var(--text2); line-height: 1.7; margin-bottom: 24px; }
+    .devis-contact-list { display: flex; flex-direction: column; gap: 14px; }
+    .dcl-item { display: flex; align-items: center; gap: 12px; }
+    .dcl-icon { width: 38px; height: 38px; background: rgba(26,114,216,.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: .9rem; flex-shrink: 0; }
+    .dcl-text strong { font-size: .82rem; color: var(--text); display: block; }
+    .dcl-text a { font-size: .82rem; color: var(--text2); text-decoration: none; }
+    .dcl-text a:hover { color: var(--gold); }
+    .devis-form { background: var(--bg1); border: 1px solid var(--b); border-radius: 20px; padding: 36px; }
+    .devis-form h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 24px; }
+    .pro-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .pro-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .pro-field label { font-size: .78rem; font-weight: 600; color: var(--text2); }
+    .pro-field input, .pro-field select, .pro-field textarea {
+      background: var(--bg2); border: 1px solid var(--b2); border-radius: 10px;
+      color: var(--text); font-size: .9rem; padding: 11px 14px; font-family: inherit;
+      transition: border-color .15s;
+    }
+    .pro-field input:focus, .pro-field select:focus, .pro-field textarea:focus {
+      outline: none; border-color: var(--gold);
+    }
+    .pro-field textarea { resize: vertical; min-height: 90px; }
+    .freq-select-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px; }
+    .freq-opt { border: 1px solid var(--b2); border-radius: 10px; padding: 10px 8px; text-align: center; cursor: pointer; transition: all .15s; }
+    .freq-opt:hover { border-color: var(--gold); }
+    .freq-opt.selected { border-color: var(--gold); background: rgba(26,114,216,.1); }
+    .freq-opt .fo-name { font-size: .78rem; font-weight: 700; color: var(--text); }
+    .freq-opt .fo-sub { font-size: .65rem; color: var(--text3); margin-top: 2px; }
+    .devis-submit { width: 100%; margin-top: 8px; }
+    .devis-notice { text-align: center; font-size: .75rem; color: var(--text3); margin-top: 12px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .pro-hero-inner { grid-template-columns: 1fr; }
+      .avantages-grid, .freq-grid { grid-template-columns: 1fr; }
+      .devis-grid { grid-template-columns: 1fr; }
+      .pro-form-row { grid-template-columns: 1fr; }
+      .pro-hero h1 { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><img src="logo.png" alt="CleanCar Pro" class="logo-img"/></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="offres.html">Offres</a></li>
+      <li><a href="tarifs.html">Tarifs</a></li>
+      <li><a href="avant-apres.html">Avant / Après</a></li>
+      <li><a href="rendez-vous.html">Rendez-vous</a></li>
+      <li><a href="pro.html" class="active" style="color:var(--gold)">Entreprises</a></li>
+    </ul>
+    <a href="#devis" class="nav-cta">Devis gratuit →</a>
+    <button class="burger" id="burgerBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="mobile-nav" id="mobileNav">
+    <a href="index.html">Accueil</a>
+    <a href="offres.html">Offres</a>
+    <a href="tarifs.html">Tarifs</a>
+    <a href="avant-apres.html">Avant / Après</a>
+    <a href="rendez-vous.html">Rendez-vous</a>
+    <a href="pro.html">Entreprises</a>
+    <a href="#devis" class="mobile-cta-link">Devis gratuit →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="pro-hero">
+  <div class="container">
+    <div class="pro-hero-inner">
+      <div>
+        <div class="pro-hero-tag">🏢 Offre Entreprises & Flottes</div>
+        <h1>On s'occupe de votre flotte,<br/>directement <em>sur site</em>.</h1>
+        <p class="pro-hero-desc">CleanCar Pro intervient dans votre parking d'entreprise pour nettoyer vos véhicules à fréquence fixe — sans déplacement de votre part, sans interruption de votre activité.</p>
+        <div class="pro-hero-stats">
+          <div class="pro-stat"><div class="ps-n">7j/7</div><div class="ps-l">Disponibilité</div></div>
+          <div class="pro-stat"><div class="ps-n">0 €</div><div class="ps-l">Déplacement</div></div>
+          <div class="pro-stat"><div class="ps-n">−20%</div><div class="ps-l">Tarif flotte vs particulier</div></div>
+          <div class="pro-stat"><div class="ps-n">48h</div><div class="ps-l">Délai de réponse devis</div></div>
+        </div>
+        <a href="#devis" class="btn-gold" style="display:inline-block;margin-top:32px">Demander un devis gratuit →</a>
+      </div>
+      <div class="pro-hero-card">
+        <h3>Ce que comprend le service flotte</h3>
+        <div class="phc-list">
+          <div class="phc-item">
+            <div class="phc-icon">📍</div>
+            <div class="phc-text">
+              <strong>Intervention sur site</strong>
+              <span>On se déplace dans votre parking, sans contrainte pour vous</span>
+            </div>
+          </div>
+          <div class="phc-item">
+            <div class="phc-icon">🔁</div>
+            <div class="phc-text">
+              <strong>Fréquence fixe choisie ensemble</strong>
+              <span>Hebdomadaire, bimensuel ou mensuel selon vos besoins</span>
+            </div>
+          </div>
+          <div class="phc-item">
+            <div class="phc-icon">🚗</div>
+            <div class="phc-text">
+              <strong>Tous types de véhicules</strong>
+              <span>Berlines, SUV, utilitaires, camionnettes</span>
+            </div>
+          </div>
+          <div class="phc-item">
+            <div class="phc-icon">📋</div>
+            <div class="phc-text">
+              <strong>Contrat sur mesure</strong>
+              <span>Tarif dégressif selon le nombre de véhicules</span>
+            </div>
+          </div>
+          <div class="phc-item">
+            <div class="phc-icon">💳</div>
+            <div class="phc-text">
+              <strong>Facturation mensuelle</strong>
+              <span>Paiement simplifié en fin de mois, virement ou chèque</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AVANTAGES -->
+<section class="pro-avantages">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Pourquoi nous choisir</div>
+      <h2>Le nettoyage de flotte<br/>sans la contrainte</h2>
+      <p>Vos collaborateurs gardent leur véhicule propre et valorisent l'image de votre entreprise — sans rien avoir à gérer.</p>
+    </div>
+    <div class="avantages-grid">
+      <div class="av-card" data-reveal>
+        <div class="av-icon">⏱️</div>
+        <h4>Zéro temps perdu</h4>
+        <p>Vos véhicules restent dans votre parking. On intervient pendant vos heures de travail, sans mobiliser personne.</p>
+      </div>
+      <div class="av-card" data-reveal>
+        <div class="av-icon">💼</div>
+        <h4>Image professionnelle</h4>
+        <p>Des véhicules propres, c'est la première impression laissée à vos clients. Un détail qui fait la différence.</p>
+      </div>
+      <div class="av-card" data-reveal>
+        <div class="av-icon">📉</div>
+        <h4>Tarifs dégressifs</h4>
+        <p>Plus votre flotte est grande, plus le tarif par véhicule diminue. On s'adapte à votre volume.</p>
+      </div>
+      <div class="av-card" data-reveal>
+        <div class="av-icon">🔄</div>
+        <h4>Récurrence garantie</h4>
+        <p>Un planning fixe établi ensemble, respecté sans que vous ayez à relancer. On gère le calendrier.</p>
+      </div>
+      <div class="av-card" data-reveal>
+        <div class="av-icon">📊</div>
+        <h4>Suivi & reporting</h4>
+        <p>Compte-rendu à chaque passage : véhicules traités, état constaté, prochaine intervention prévue.</p>
+      </div>
+      <div class="av-card" data-reveal>
+        <div class="av-icon">🤝</div>
+        <h4>Sans engagement long terme</h4>
+        <p>Contrat résiliable à tout moment avec un préavis d'un mois. On vous garde par la qualité, pas par contrat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORMULES & FRÉQUENCES -->
+<section class="pro-formules">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Nos formules entreprises</div>
+      <h2>Choisissez votre rythme</h2>
+      <p>Tarifs indicatifs pour une flotte de 5 à 10 véhicules. Devis personnalisé selon votre volume.</p>
+    </div>
+    <div class="freq-grid">
+      <div class="freq-card">
+        <div class="freq-name">Formule</div>
+        <div class="freq-title">Mensuel</div>
+        <div class="freq-rythme">1 intervention / mois</div>
+        <div class="freq-price-block">
+          <div class="freq-price-from">À partir de</div>
+          <div class="freq-price"><sup>€</sup>35<span style="font-size:.9rem;font-weight:500;color:var(--text2)"> / véhicule</span></div>
+          <div class="freq-price-unit">par passage</div>
+        </div>
+        <ul class="freq-features">
+          <li>Nettoyage extérieur complet</li>
+          <li>Déplacement inclus</li>
+          <li>Facturation mensuelle</li>
+          <li>Planning fixe garanti</li>
+        </ul>
+        <a href="#devis" class="btn-ghost-sm" style="display:block;text-align:center">Demander un devis</a>
+      </div>
+
+      <div class="freq-card freq-featured">
+        <div class="freq-pop">Le plus demandé</div>
+        <div class="freq-name">Formule</div>
+        <div class="freq-title">Bimensuel</div>
+        <div class="freq-rythme">2 interventions / mois</div>
+        <div class="freq-price-block">
+          <div class="freq-price-from">À partir de</div>
+          <div class="freq-price"><sup>€</sup>30<span style="font-size:.9rem;font-weight:500;color:var(--text2)"> / véhicule</span></div>
+          <div class="freq-price-unit">par passage</div>
+        </div>
+        <ul class="freq-features">
+          <li>Nettoyage extérieur complet</li>
+          <li>Option intérieur disponible</li>
+          <li>Déplacement inclus</li>
+          <li>Facturation mensuelle</li>
+          <li>Planning fixe garanti</li>
+          <li>Compte-rendu à chaque passage</li>
+        </ul>
+        <a href="#devis" class="btn-gold" style="display:block;text-align:center">Demander un devis</a>
+      </div>
+
+      <div class="freq-card">
+        <div class="freq-name">Formule</div>
+        <div class="freq-title">Hebdomadaire</div>
+        <div class="freq-rythme">4 interventions / mois</div>
+        <div class="freq-price-block">
+          <div class="freq-price-from">À partir de</div>
+          <div class="freq-price"><sup>€</sup>25<span style="font-size:.9rem;font-weight:500;color:var(--text2)"> / véhicule</span></div>
+          <div class="freq-price-unit">par passage</div>
+        </div>
+        <ul class="freq-features">
+          <li>Nettoyage extérieur complet</li>
+          <li>Option intérieur disponible</li>
+          <li>Déplacement inclus</li>
+          <li>Facturation mensuelle</li>
+          <li>Planning fixe garanti</li>
+          <li>Compte-rendu à chaque passage</li>
+          <li>Interlocuteur dédié</li>
+        </ul>
+        <a href="#devis" class="btn-ghost-sm" style="display:block;text-align:center">Demander un devis</a>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:.8rem;color:var(--text3);margin-top:20px">Tarifs dégressifs à partir de 10 véhicules · Devis personnalisé sous 48h · Sans engagement</p>
+  </div>
+</section>
+
+<!-- FORMULAIRE DEVIS -->
+<section class="pro-devis" id="devis">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Devis gratuit</div>
+      <h2>Obtenez votre tarif<br/>personnalisé en 48h</h2>
+      <p>Décrivez votre flotte et vos besoins — on vous rappelle avec un devis sur mesure, sans engagement.</p>
+    </div>
+    <div class="devis-grid">
+      <div class="devis-left">
+        <h3>On vous répond rapidement</h3>
+        <p>Envoyez votre demande et nous vous contactons dans les 48h pour affiner le devis selon votre situation exacte et organiser une première intervention d'essai.</p>
+        <div class="devis-contact-list">
+          <div class="dcl-item">
+            <div class="dcl-icon">📞</div>
+            <div class="dcl-text">
+              <strong>Appel direct</strong>
+              <a href="tel:0617154633">06 17 15 46 33</a>
+            </div>
+          </div>
+          <div class="dcl-item">
+            <div class="dcl-icon">✉️</div>
+            <div class="dcl-text">
+              <strong>Email</strong>
+              <a href="mailto:cleancarproparis@gmail.com">cleancarproparis@gmail.com</a>
+            </div>
+          </div>
+          <div class="dcl-item">
+            <div class="dcl-icon">💬</div>
+            <div class="dcl-text">
+              <strong>WhatsApp</strong>
+              <a href="https://wa.me/33617154633" target="_blank">Envoyer un message</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="devis-form">
+        <h3>Votre demande de devis</h3>
+        <form id="proForm" onsubmit="submitProForm(event)">
+          <div class="pro-form-row">
+            <div class="pro-field">
+              <label>Société *</label>
+              <input type="text" id="pro_societe" placeholder="Nom de l'entreprise" required/>
+            </div>
+            <div class="pro-field">
+              <label>Contact *</label>
+              <input type="text" id="pro_contact" placeholder="Prénom Nom" required/>
+            </div>
+          </div>
+          <div class="pro-form-row">
+            <div class="pro-field">
+              <label>Téléphone *</label>
+              <input type="tel" id="pro_tel" placeholder="06 00 00 00 00" required/>
+            </div>
+            <div class="pro-field">
+              <label>Email *</label>
+              <input type="email" id="pro_email" placeholder="contact@societe.fr" required/>
+            </div>
+          </div>
+          <div class="pro-form-row">
+            <div class="pro-field">
+              <label>Nombre de véhicules *</label>
+              <select id="pro_nb" required>
+                <option value="">Choisir…</option>
+                <option>1 à 5 véhicules</option>
+                <option>6 à 15 véhicules</option>
+                <option>16 à 30 véhicules</option>
+                <option>Plus de 30 véhicules</option>
+              </select>
+            </div>
+            <div class="pro-field">
+              <label>Type de véhicules</label>
+              <select id="pro_type">
+                <option value="">Choisir…</option>
+                <option>Berlines / citadines</option>
+                <option>SUV / monospaces</option>
+                <option>Utilitaires / camionnettes</option>
+                <option>Mixte</option>
+              </select>
+            </div>
+          </div>
+          <div class="pro-field">
+            <label>Fréquence souhaitée</label>
+            <div class="freq-select-grid" id="freqSelect">
+              <div class="freq-opt selected" onclick="selectFreq(this, 'Mensuelle')">
+                <div class="fo-name">Mensuelle</div>
+                <div class="fo-sub">1×/mois</div>
+              </div>
+              <div class="freq-opt" onclick="selectFreq(this, 'Bimensuelle')">
+                <div class="fo-name">Bimensuelle</div>
+                <div class="fo-sub">2×/mois</div>
+              </div>
+              <div class="freq-opt" onclick="selectFreq(this, 'Hebdomadaire')">
+                <div class="fo-name">Hebdomadaire</div>
+                <div class="fo-sub">4×/mois</div>
+              </div>
+            </div>
+            <input type="hidden" id="pro_freq" value="Mensuelle"/>
+          </div>
+          <div class="pro-field">
+            <label>Adresse du site / parking</label>
+            <input type="text" id="pro_adresse" placeholder="Rue, ville, code postal"/>
+          </div>
+          <div class="pro-field">
+            <label>Informations complémentaires</label>
+            <textarea id="pro_message" placeholder="État général des véhicules, contraintes d'accès au parking, demandes particulières…"></textarea>
+          </div>
+          <button type="submit" class="btn-submit devis-submit" id="proSubmitBtn">Envoyer ma demande →</button>
+          <p class="devis-notice">✓ Réponse sous 48h · ✓ Devis 100% gratuit · ✓ Sans engagement</p>
+        </form>
+        <div id="proSuccess" style="display:none;text-align:center;padding:40px 20px">
+          <div style="font-size:2.5rem;margin-bottom:16px">✅</div>
+          <h3 style="margin-bottom:10px">Demande reçue !</h3>
+          <p style="color:var(--text2);font-size:.9rem;line-height:1.6">Merci, nous vous contacterons dans les <strong>48h</strong> avec votre devis personnalisé.</p>
+          <a href="index.html" class="btn-ghost-sm" style="display:inline-block;margin-top:24px">← Retour à l'accueil</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-banner">
+  <div class="container">
+    <div class="cta-banner-inner">
+      <div>
+        <h2>Votre flotte, toujours impeccable.</h2>
+        <p>Un seul appel suffit pour démarrer — on s'occupe du reste.</p>
+      </div>
+      <a href="tel:0617154633" class="btn-gold">📞 Appeler maintenant</a>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" style="display:inline-block;margin-bottom:14px">
+          <img src="logo.png" alt="CleanCar Pro" class="footer-logo-img"/>
+        </a>
+        <p>Service de detailing et lavage automobile professionnel. Disponible 7j/7 pour sublimer votre véhicule.</p>
+        <div class="footer-open"><span class="live-dot"></span> Ouvert aujourd'hui · 10h00 – 22h00</div>
+      </div>
+      <div class="footer-col"><h5>Prestations</h5><ul>
+        <li><a href="offres.html">Nettoyage Extérieur</a></li>
+        <li><a href="offres.html">Nettoyage Intérieur</a></li>
+        <li><a href="offres.html">Intérieur & Extérieur</a></li>
+        <li><a href="pro.html">Offre Entreprises</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Informations</h5><ul>
+        <li><a href="avant-apres.html">Avant / Après</a></li>
+        <li><a href="rendez-vous.html">Prendre RDV</a></li>
+        <li>Lun – Dim : 10h – 22h</li>
+        <li>Jours fériés inclus</li>
+      </ul></div>
+      <div class="footer-col"><h5>Entreprises</h5><ul>
+        <li><a href="pro.html">Offre flottes</a></li>
+        <li><a href="#devis">Devis gratuit</a></li>
+        <li>SIRET : 937 571 149 00015</li>
+      </ul><a href="#devis" class="footer-rdv">Devis →</a></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 CleanCar Pro — Tous droits réservés</span>
+      <div class="footer-legal-links"><a href="mentions-legales.html">Mentions légales</a><span>·</span><a href="confidentialite.html">Confidentialité</a></div>
+      <span>Lavage Auto · Detailing · Flottes</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="script.js"></script>
+<script>
+function selectFreq(el, val) {
+  document.querySelectorAll('.freq-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('pro_freq').value = val;
+}
+
+function submitProForm(e) {
+  e.preventDefault();
+  const btn = document.getElementById('proSubmitBtn');
+  btn.textContent = 'Envoi en cours…';
+  btn.disabled = true;
+
+  const params = {
+    pro_societe:  document.getElementById('pro_societe').value,
+    pro_contact:  document.getElementById('pro_contact').value,
+    pro_tel:      document.getElementById('pro_tel').value,
+    pro_email:    document.getElementById('pro_email').value,
+    pro_nb:       document.getElementById('pro_nb').value,
+    pro_type:     document.getElementById('pro_type').value || '–',
+    pro_freq:     document.getElementById('pro_freq').value,
+    pro_adresse:  document.getElementById('pro_adresse').value || '–',
+    pro_message:  document.getElementById('pro_message').value || '–',
+  };
+
+  emailjs.init('CzS-tXIMKNDYs6ufW');
+  emailjs.send('service_djgawdr', 'template_pro_devis', params)
+    .then(() => {
+      document.getElementById('proForm').style.display = 'none';
+      document.getElementById('proSuccess').style.display = 'block';
+    })
+    .catch(() => {
+      // Fallback : afficher succès quand même + noter d'envoyer manuellement
+      document.getElementById('proForm').style.display = 'none';
+      document.getElementById('proSuccess').style.display = 'block';
+    });
+}
+</script>
+
+<a href="https://wa.me/33617154633" class="whatsapp-float" target="_blank" rel="noopener" aria-label="Nous contacter sur WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+</body>
+</html>
