@@ -671,3 +671,17 @@ a { text-decoration: none; }
   height: 32px;
   fill: #fff;
 }
+
+/* ════ PROMO / MARKETING ════ */
+.promo-banner-top { background: linear-gradient(135deg, rgba(26,114,216,.12), rgba(62,207,106,.08)); border: 1px solid rgba(26,114,216,.25); border-radius: 14px; padding: 14px 20px; text-align: center; font-size: .9rem; color: var(--text2); margin-bottom: 40px; }
+.promo-banner-top strong { color: var(--text); }
+.svc-launch-tag { display: inline-block; background: rgba(26,114,216,.12); color: var(--gold); border: 1px solid rgba(26,114,216,.25); border-radius: 6px; padding: 3px 10px; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+.svc-launch-tag.gold-tag { background: rgba(26,114,216,.18); }
+.svc-price-block { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.svc-price-old { text-decoration: line-through; color: var(--text3); font-size: .85rem; font-weight: 500; }
+.svc-price-old.gold-old { color: #666; }
+.svc-save-badge { background: rgba(62,207,106,.15); color: #3ecf6a; border-radius: 6px; padding: 2px 7px; font-size: .72rem; font-weight: 800; }
+.svc-save-badge.green-badge { background: rgba(62,207,106,.2); }
+.svc-combo-savings { font-size: .82rem; color: var(--text2); margin: 10px 0; padding: 8px 12px; background: rgba(26,114,216,.06); border-radius: 8px; border-left: 3px solid var(--gold); }
+.tarif-promo-tag { background: rgba(62,207,106,.15); color: #3ecf6a; border-radius: 5px; padding: 1px 7px; font-size: .7rem; font-weight: 700; margin-left: 6px; }
+.price-old-sm { text-decoration: line-through; color: var(--text3); font-size: .82rem; margin-right: 4px; }
