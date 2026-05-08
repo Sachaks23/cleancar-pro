@@ -497,6 +497,8 @@ a { text-decoration: none; }
 .day-date { font-size: .66rem; font-weight: 500; color: var(--text3); line-height: 1; }
 .day-btn:hover .day-name, .day-btn:hover .day-date { color: var(--text); }
 .day-btn.active .day-name, .day-btn.active .day-date { color: #fff; }
+.day-btn.day-past { opacity: .3; cursor: not-allowed; }
+.day-btn.day-past .day-name, .day-btn.day-past .day-date { color: var(--text3); }
 .time-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; }
 .time-btn { padding: 8px 2px; text-align: center; background: var(--bg3); border: 1px solid var(--b); border-radius: 7px; font-size: .74rem; font-weight: 600; color: var(--text2); cursor: pointer; transition: all .15s; }
 .time-btn:hover { border-color: rgba(26,114,216,.4); color: var(--text); }

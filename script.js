@@ -101,15 +101,25 @@ const FIREBASE_CONFIG = {
 let db = null;
 let bookedSlots = {}; // { "2024-01-15_10:00": { ... } }
 
-// Retourne la date réelle (YYYY-MM-DD) correspondant au jour affiché
+// Retourne la date réelle (YYYY-MM-DD) du jour dans la semaine EN COURS (Lun–Dim)
 function getDateForDay(dayName) {
   const map = { 'Lun': 1, 'Mar': 2, 'Mer': 3, 'Jeu': 4, 'Ven': 5, 'Sam': 6, 'Dim': 0 };
-  const today = new Date();
-  let diff = (map[dayName] - today.getDay() + 7) % 7;
-  if (diff === 0 && today.getHours() >= 22) diff = 7;
-  const d = new Date(today);
-  d.setDate(today.getDate() + diff);
+  const today   = new Date();
+  const todayDay = today.getDay(); // 0=Dim, 1=Lun…
+  // Trouver le lundi de cette semaine
+  const mondayDiff = todayDay === 0 ? -6 : 1 - todayDay;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + mondayDiff);
+  // Décalage du jour cible depuis ce lundi (Lun=0, Mar=1…, Dim=6)
+  const targetOff = map[dayName] === 0 ? 6 : map[dayName] - 1;
+  const d = new Date(monday);
+  d.setDate(monday.getDate() + targetOff);
   return d.toISOString().split('T')[0];
+}
+
+// Nom court du jour d'aujourd'hui
+function getTodayDayName() {
+  return ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][new Date().getDay()];
 }
 
 // Utilitaire Firebase réutilisable sur toutes les pages
@@ -154,7 +164,7 @@ const DAYS  = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 const TIMES = Array.from({length: 12}, (_, i) => `${String(10 + i).padStart(2,'0')}:00`);
 // 10:00 → 21:00 (créneaux d'1h, dernier départ 21h = fin 22h)
 
-let selDay = DAYS[0], selTime = null;
+let selDay = getTodayDayName(), selTime = null;
 
 function is2h() {
   const offre = document.getElementById('offre');
@@ -172,24 +182,32 @@ function initCalendar() {
   if (!daySel || !timeGrid) return;
 
   // Jours avec vraies dates
-  DAYS.forEach((day, i) => {
-    const date = getDateForDay(day);
-    const d    = new Date(date + 'T12:00:00');
-    const dd   = String(d.getDate()).padStart(2,'0');
-    const mm   = String(d.getMonth() + 1).padStart(2,'0');
+  const todayStr = new Date().toISOString().split('T')[0];
+  DAYS.forEach((day) => {
+    const date  = getDateForDay(day);
+    const d     = new Date(date + 'T12:00:00');
+    const dd    = String(d.getDate()).padStart(2,'0');
+    const mm    = String(d.getMonth() + 1).padStart(2,'0');
+    const isPast = date < todayStr;
 
     const btn = document.createElement('button');
-    btn.className = 'day-btn' + (day === selDay ? ' active' : '');
     btn.type = 'button';
     btn.innerHTML = `<span class="day-name">${day}</span><span class="day-date">${dd}/${mm}</span>`;
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      selDay = day;
-      selTime = null;
-      clearTimeSelection();
-      refreshSlotAvailability();
-    });
+
+    if (isPast) {
+      btn.className = 'day-btn day-past';
+      btn.disabled  = true;
+    } else {
+      btn.className = 'day-btn' + (day === selDay ? ' active' : '');
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selDay = day;
+        selTime = null;
+        clearTimeSelection();
+        refreshSlotAvailability();
+      });
+    }
     daySel.appendChild(btn);
   });
 
@@ -233,17 +251,23 @@ function refreshSlotAvailability() {
   const twoH = is2h();
   const slotDate = getDateForDay(selDay);
 
+  const nowTodayStr   = new Date().toISOString().split('T')[0];
+  const isToday       = slotDate === nowTodayStr;
+  const currentHour   = new Date().getHours();
+
   btns.forEach((btn, idx) => {
-    const slotKey  = `${slotDate}_${btn.textContent}`;
-    const nextBtn  = btns[idx + 1];
-    const nextKey  = nextBtn ? `${slotDate}_${nextBtn.textContent}` : null;
+    const slotKey   = `${slotDate}_${btn.textContent}`;
+    const nextBtn   = btns[idx + 1];
+    const nextKey   = nextBtn ? `${slotDate}_${nextBtn.textContent}` : null;
+    const slotHour  = parseInt(btn.textContent.split(':')[0]);
 
     const isBooked     = !!bookedSlots[slotKey];
     const nextIsBooked = !!(twoH && nextKey && bookedSlots[nextKey]);
     const isLastFor2h  = twoH && idx === btns.length - 1;
+    const isPastSlot   = isToday && slotHour <= currentHour;
 
-    btn.disabled = isBooked || nextIsBooked || isLastFor2h;
-    btn.classList.toggle('booked', isBooked);
+    btn.disabled = isBooked || nextIsBooked || isLastFor2h || isPastSlot;
+    btn.classList.toggle('booked', isBooked && !isPastSlot);
     if (btn.disabled) btn.classList.remove('active', 'active-2h');
   });
 
