@@ -482,53 +482,63 @@ function initReviews() {
     if (!selectedRating) { alert('Veuillez sélectionner une note.'); return; }
 
     const review = {
-      name:    document.getElementById('reviewName').value.trim(),
-      formule: document.getElementById('reviewFormule').value,
-      rating:  selectedRating,
-      comment: document.getElementById('reviewComment').value.trim(),
-      date:    new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      name:      document.getElementById('reviewName').value.trim(),
+      formule:   document.getElementById('reviewFormule').value,
+      rating:    selectedRating,
+      comment:   document.getElementById('reviewComment').value.trim(),
+      date:      new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
+      timestamp: Date.now()
     };
 
-    const reviews = JSON.parse(localStorage.getItem('cleancar_reviews') || '[]');
-    reviews.unshift(review);
-    localStorage.setItem('cleancar_reviews', JSON.stringify(reviews));
+    // Sauvegarde Firebase
+    getFirebaseDb(db => {
+      db.ref('reviews/' + review.timestamp).set(review);
+    });
 
     document.getElementById('reviewForm').reset();
     selectedRating = 0;
     highlightStars(0);
-    renderReviews();
 
     const btn = document.getElementById('reviewSubmitBtn');
     btn.textContent = '✓ Avis publié !';
     btn.style.background = '#3ecf6a';
     setTimeout(() => { btn.textContent = 'Publier mon avis'; btn.style.background = ''; }, 2500);
+
+    // Affichage immédiat local en attendant Firebase
+    renderReviews();
   });
 }
 
 function renderReviews() {
-  const list     = document.getElementById('reviewsList');
-  const empty    = document.getElementById('noReviews');
+  const list  = document.getElementById('reviewsList');
+  const empty = document.getElementById('noReviews');
   if (!list) return;
 
-  const reviews = JSON.parse(localStorage.getItem('cleancar_reviews') || '[]');
+  // Lecture Firebase en temps réel
+  getFirebaseDb(db => {
+    db.ref('reviews').on('value', snapshot => {
+      const data = snapshot.val() || {};
+      const reviews = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
 
-  if (reviews.length === 0) {
-    list.innerHTML = '';
-    if (empty) empty.style.display = 'block';
-    return;
-  }
+      if (reviews.length === 0) {
+        list.innerHTML = '';
+        if (empty) empty.style.display = 'block';
+        return;
+      }
 
-  if (empty) empty.style.display = 'none';
-  list.innerHTML = reviews.map(r => `
-    <div class="review-card">
-      <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
-      <p>"${r.comment}"</p>
-      <div class="review-author">
-        <div class="review-avatar">${r.name.charAt(0).toUpperCase()}</div>
-        <div><strong>${r.name}</strong><span>${r.formule} · ${r.date}</span></div>
-      </div>
-    </div>
-  `).join('');
+      if (empty) empty.style.display = 'none';
+      list.innerHTML = reviews.map(r => `
+        <div class="review-card">
+          <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+          <p>"${r.comment}"</p>
+          <div class="review-author">
+            <div class="review-avatar">${r.name.charAt(0).toUpperCase()}</div>
+            <div><strong>${r.name}</strong><span>${r.formule} · ${r.date}</span></div>
+          </div>
+        </div>
+      `).join('');
+    });
+  });
 }
 
 /*
