@@ -296,9 +296,12 @@ function updateRecap() {
   const el = document.getElementById('slotRecapText');
   if (!el) return;
   if (selDay && selTime) {
-    const duree  = is2h() ? 2 : 1;
-    const end    = addHour(selTime, duree);
-    el.textContent = `${selDay} · ${selTime} – ${end} (${duree}h)`;
+    const duree   = is2h() ? 2 : 1;
+    const end     = addHour(selTime, duree);
+    const date    = getDateForDay(selDay);
+    const d       = new Date(date + 'T12:00:00');
+    const dateStr = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    el.textContent = `${selDay} ${dateStr} · ${selTime} – ${end} (${duree}h)`;
   } else if (selDay) {
     el.textContent = `${selDay} — choisissez un horaire`;
   } else {
@@ -341,12 +344,20 @@ function submitForm(e) {
   btn.textContent = 'Envoi en cours…';
   btn.disabled = true;
 
+  // Variables date/heure séparées pour Zapier → Google Agenda
+  const rdv_date     = (selDay && selTime) ? getDateForDay(selDay) : '';           // ex: 2025-05-09
+  const rdv_time     = selTime || '';                                               // ex: 10:00
+  const rdv_end_time = selTime ? addHour(selTime, is2h() ? 2 : 1) : '';           // ex: 11:00
+
   const params = {
     prenom, nom, tel, email,
     vehicule, offre, marque, message, creneau,
     full_name: `${prenom} ${nom}`,
     name: `${prenom} ${nom}`,
-    cancel_url: cancelUrl
+    cancel_url: cancelUrl,
+    rdv_date,
+    rdv_time,
+    rdv_end_time
   };
 
   // Email à toi (owner)
