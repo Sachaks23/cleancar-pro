@@ -45,8 +45,14 @@
   <div class="admin-stats">
     <div class="stat-chip"><div class="n" id="statTotal">–</div><div class="l">RDV à venir</div></div>
     <div class="stat-chip"><div class="n" id="statToday">–</div><div class="l">Aujourd'hui</div></div>
+    <div class="stat-chip"><div class="n" id="statDevis">–</div><div class="l">Devis entreprises</div></div>
   </div>
   <div id="bookingsList"><p style="color:var(--text2)">Chargement…</p></div>
+
+  <div style="margin-top:40px">
+    <div class="admin-title" style="font-size:1.2rem;margin-bottom:16px">🏢 Demandes de devis entreprises</div>
+    <div id="devisList"><p style="color:var(--text2)">Chargement…</p></div>
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -82,10 +88,37 @@ function formatSlotKey(key) {
 function loadBookings() {
   getFirebaseDb(database => {
     database.ref('bookings').once('value', snapshot => {
-      const all = snapshot.val() || {};
-      renderBookings(all);
+      renderBookings(snapshot.val() || {});
+    });
+    database.ref('devis').once('value', snapshot => {
+      renderDevis(snapshot.val() || {});
     });
   });
+}
+
+function renderDevis(all) {
+  const list = document.getElementById('devisList');
+  const entries = Object.values(all).sort((a, b) => b.timestamp - a.timestamp);
+  document.getElementById('statDevis').textContent = entries.length;
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty-msg">Aucune demande de devis.</div>';
+    return;
+  }
+  list.innerHTML = entries.map(d => {
+    const date = new Date(d.timestamp).toLocaleDateString('fr-FR', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+    return `
+      <div class="booking-row">
+        <div class="booking-info">
+          <span class="booking-date">📥 ${date}</span>
+          <strong>${d.contact} — ${d.societe}</strong>
+          <span>${d.tel}${d.email && d.email !== '–' ? ' · ' + d.email : ''}</span>
+          <span>🚗 ${d.nb} · ${d.type} · 🔁 ${d.freq}</span>
+          ${d.adresse !== '–' ? '<span>📍 ' + d.adresse + '</span>' : ''}
+          ${d.message !== '–' ? '<span>💬 ' + d.message + '</span>' : ''}
+        </div>
+        <a href="tel:${d.tel}" class="btn-cancel" style="background:rgba(26,114,216,.12);color:#1a72d8;border-color:rgba(26,114,216,.3)">Appeler</a>
+      </div>`;
+  }).join('');
 }
 
 function renderBookings(all) {

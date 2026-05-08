@@ -487,26 +487,44 @@ function submitProForm(e) {
   btn.textContent = 'Envoi en cours…';
   btn.disabled = true;
 
-  const params = {
-    pro_societe:  document.getElementById('pro_societe').value,
-    pro_contact:  document.getElementById('pro_contact').value,
-    pro_tel:      document.getElementById('pro_tel').value,
-    pro_email:    document.getElementById('pro_email').value,
-    pro_nb:       document.getElementById('pro_nb').value,
-    pro_type:     document.getElementById('pro_type').value || '–',
-    pro_freq:     document.getElementById('pro_freq').value,
-    pro_adresse:  document.getElementById('pro_adresse').value || '–',
-    pro_message:  document.getElementById('pro_message').value || '–',
+  const data = {
+    societe:   document.getElementById('pro_societe').value,
+    contact:   document.getElementById('pro_contact').value,
+    tel:       document.getElementById('pro_tel').value,
+    email:     document.getElementById('pro_email').value,
+    nb:        document.getElementById('pro_nb').value,
+    type:      document.getElementById('pro_type').value || '–',
+    freq:      document.getElementById('pro_freq').value,
+    adresse:   document.getElementById('pro_adresse').value || '–',
+    message:   document.getElementById('pro_message').value || '–',
+    timestamp: Date.now()
+  };
+
+  // 1. Sauvegarde Firebase (données jamais perdues)
+  getFirebaseDb(database => {
+    database.ref('devis/' + data.timestamp).set(data);
+  });
+
+  // 2. Email via le template RDV existant (champs adaptés)
+  const emailParams = {
+    prenom:       data.contact,
+    nom:          '— ' + data.societe,
+    tel:          data.tel,
+    email:        data.email || '–',
+    offre:        '🏢 DEVIS ENTREPRISE · Fréquence : ' + data.freq,
+    vehicule:     data.nb + (data.type !== '–' ? ' · ' + data.type : ''),
+    rdv_date:     'À planifier',
+    rdv_time:     data.freq,
+    rdv_end_time: '–',
+    message:      'Adresse : ' + data.adresse + '\n' + data.message,
+    calendar_link:'',
+    cancel_url:   '',
+    marque:       ''
   };
 
   emailjs.init('CzS-tXIMKNDYs6ufW');
-  emailjs.send('service_djgawdr', 'template_pro_devis', params)
-    .then(() => {
-      document.getElementById('proForm').style.display = 'none';
-      document.getElementById('proSuccess').style.display = 'block';
-    })
-    .catch(() => {
-      // Fallback : afficher succès quand même + noter d'envoyer manuellement
+  emailjs.send('service_djgawdr', 'template_resa', emailParams)
+    .finally(() => {
       document.getElementById('proForm').style.display = 'none';
       document.getElementById('proSuccess').style.display = 'block';
     });
