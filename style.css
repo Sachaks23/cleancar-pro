@@ -632,6 +632,8 @@ a { text-decoration: none; }
   .pay-methods { flex-direction: column; }
   .pay-or { display: none; }
   .form-row-2 { grid-template-columns: 1fr; }
+  .contact-bar { display: none; }
+  .tarif-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
 @media (max-width: 520px) {
   #hero { padding: 95px 20px 60px; }
