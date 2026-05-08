@@ -32,6 +32,9 @@
 <div class="login-wrap" id="loginScreen">
   <h2>Admin CleanCar Pro</h2>
   <input type="password" id="adminPass" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkPass()"/>
+  <label style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text2);margin:10px 0 4px;cursor:pointer">
+    <input type="checkbox" id="rememberMe" style="width:auto;margin:0"/> Se souvenir de moi pendant 30 jours
+  </label>
   <button class="btn-submit" style="width:100%" onclick="checkPass()">Entrer →</button>
   <p id="loginErr" style="color:#e55;margin-top:10px;font-size:.85rem;display:none">Mot de passe incorrect.</p>
 </div>
@@ -59,24 +62,39 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="script.js"></script>
 <script>
-const ADMIN_PASSWORD = 'cleancar2025'; // ← change si tu veux
+const ADMIN_PASSWORD = 'Andreas2006$';
+const REMEMBER_KEY   = 'ccp_admin_exp';
 
 function checkPass() {
   const val = document.getElementById('adminPass').value;
   if (val === ADMIN_PASSWORD) {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminPanel').style.display  = 'block';
-    loadBookings();
+    if (document.getElementById('rememberMe').checked) {
+      localStorage.setItem(REMEMBER_KEY, Date.now() + 30 * 24 * 3600 * 1000);
+    }
+    showPanel();
   } else {
     document.getElementById('loginErr').style.display = 'block';
   }
 }
 
+function showPanel() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPanel').style.display  = 'block';
+  loadBookings();
+}
+
 function logout() {
+  localStorage.removeItem(REMEMBER_KEY);
   document.getElementById('adminPanel').style.display  = 'none';
   document.getElementById('loginScreen').style.display = 'block';
   document.getElementById('adminPass').value = '';
 }
+
+// Auto-login si token valide
+(function() {
+  const exp = parseInt(localStorage.getItem(REMEMBER_KEY) || '0');
+  if (exp && Date.now() < exp) showPanel();
+})();
 
 function formatSlotKey(key) {
   const [date, time] = key.split('_');
