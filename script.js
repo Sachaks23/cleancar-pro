@@ -89,13 +89,13 @@ function initStats() {
    FIREBASE CONFIG  ← remplace par tes vraies valeurs
 ──────────────────────────────────────────── */
 const FIREBASE_CONFIG = {
-  apiKey:            'FIREBASE_API_KEY',
-  authDomain:        'FIREBASE_PROJECT_ID.firebaseapp.com',
-  databaseURL:       'https://FIREBASE_PROJECT_ID-default-rtdb.europe-west1.firebasedatabase.app',
-  projectId:         'FIREBASE_PROJECT_ID',
-  storageBucket:     'FIREBASE_PROJECT_ID.appspot.com',
-  messagingSenderId: 'FIREBASE_SENDER_ID',
-  appId:             'FIREBASE_APP_ID'
+  apiKey:            'AIzaSyDUR7Ama1bxt1rYSEPy4_UkOA5i29ZtHBg',
+  authDomain:        'cleancar-pro.firebaseapp.com',
+  databaseURL:       'https://cleancar-pro-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId:         'cleancar-pro',
+  storageBucket:     'cleancar-pro.firebasestorage.app',
+  messagingSenderId: '249612571062',
+  appId:             '1:249612571062:web:6a0dc70083507c15f37117'
 };
 
 let db = null;
