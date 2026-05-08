@@ -390,10 +390,21 @@ function submitForm(e) {
   btn.textContent = 'Envoi en cours…';
   btn.disabled = true;
 
-  // Variables date/heure séparées pour Zapier → Google Agenda
-  const rdv_date     = (selDay && selTime) ? getDateForDay(selDay) : '';           // ex: 2025-05-09
-  const rdv_time     = selTime || '';                                               // ex: 10:00
-  const rdv_end_time = selTime ? addHour(selTime, is2h() ? 2 : 1) : '';           // ex: 11:00
+  // Variables date/heure
+  const rdv_date     = (selDay && selTime) ? getDateForDay(selDay) : '';
+  const rdv_time     = selTime || '';
+  const rdv_end_time = selTime ? addHour(selTime, is2h() ? 2 : 1) : '';
+
+  // Lien Google Agenda cliquable dans l'email owner
+  let calendar_link = '';
+  if (rdv_date && rdv_time) {
+    const dc  = rdv_date.replace(/-/g, '');                    // 20250509
+    const ts  = rdv_time.replace(':', '') + '00';              // 100000
+    const te  = rdv_end_time.replace(':', '') + '00';          // 110000
+    const ttl = encodeURIComponent(`RDV ${prenom} ${nom}`);
+    const det = encodeURIComponent(`Tél: ${tel} | ${offre} | ${vehicule}${marque ? ' ' + marque : ''}${message ? '\n' + message : ''}`);
+    calendar_link = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${ttl}&dates=${dc}T${ts}/${dc}T${te}&details=${det}&location=Chez%20le%20client`;
+  }
 
   const params = {
     prenom, nom, tel, email,
@@ -403,7 +414,8 @@ function submitForm(e) {
     cancel_url: cancelUrl,
     rdv_date,
     rdv_time,
-    rdv_end_time
+    rdv_end_time,
+    calendar_link
   };
 
   // Email à toi (owner)
