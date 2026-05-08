@@ -303,6 +303,16 @@ function submitForm(e) {
   const message  = document.getElementById('message')?.value.trim()   || '';
   const creneau  = document.getElementById('slotRecapText')?.textContent || '';
 
+  // Générer le token d'annulation AVANT l'envoi email pour l'inclure dedans
+  let cancelToken = '';
+  let cancelUrl   = '';
+  if (selDay && selTime) {
+    cancelToken = generateToken();
+    const date  = getDateForDay(selDay);
+    const slotKey = `${date}_${selTime}`;
+    cancelUrl = `${window.location.origin}/annuler.html?id=${encodeURIComponent(slotKey)}&token=${cancelToken}`;
+  }
+
   const btn = document.querySelector('#resaForm .btn-submit');
   btn.textContent = 'Envoi en cours…';
   btn.disabled = true;
@@ -311,7 +321,8 @@ function submitForm(e) {
     prenom, nom, tel, email,
     vehicule, offre, marque, message, creneau,
     full_name: `${prenom} ${nom}`,
-    name: `${prenom} ${nom}`
+    name: `${prenom} ${nom}`,
+    cancel_url: cancelUrl
   };
 
   // Email à toi (owner)
@@ -325,16 +336,11 @@ function submitForm(e) {
   Promise.all([sendOwner, sendClient])
     .then(() => {
       // Sauvegarder le créneau dans Firebase pour le bloquer
-      if (selDay && selTime) {
-        const cancelToken = generateToken();
-        const date = getDateForDay(selDay);
-        const slotKey = `${date}_${selTime}`;
-        const cancelUrl = `${window.location.origin}/annuler.html?id=${encodeURIComponent(slotKey)}&token=${cancelToken}`;
+      if (selDay && selTime && cancelToken) {
         saveBookingToFirebase(selDay, selTime, {
           prenom, nom, tel, email, vehicule, offre, marque, creneau,
           cancelToken, cancelUrl, timestamp: Date.now()
         });
-        // Mettre à jour l'email client avec le lien d'annulation si possible
       }
       document.getElementById('resaForm').style.display = 'none';
       document.getElementById('successPanel').style.display = 'block';
