@@ -58,7 +58,9 @@ a { text-decoration: none; }
   width: auto;
   display: block;
   object-fit: contain;
+  mix-blend-mode: screen;
 }
+.footer-logo-img { mix-blend-mode: screen; }
 .nav-links { display: flex; list-style: none; gap: 28px; margin-left: auto; }
 .nav-links a { color: var(--text2); font-size: .875rem; font-weight: 500; transition: color .2s; }
 .nav-links a:hover, .nav-links a.active { color: var(--text); }
