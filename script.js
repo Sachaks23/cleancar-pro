@@ -481,18 +481,20 @@ function initReviews() {
     e.preventDefault();
     if (!selectedRating) { alert('Veuillez sélectionner une note.'); return; }
 
+    const ts = Date.now();
     const review = {
       name:      document.getElementById('reviewName').value.trim(),
       formule:   document.getElementById('reviewFormule').value,
       rating:    selectedRating,
       comment:   document.getElementById('reviewComment').value.trim(),
       date:      new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
-      timestamp: Date.now()
+      timestamp: ts
     };
 
-    // Sauvegarde Firebase
     getFirebaseDb(db => {
-      db.ref('reviews/' + review.timestamp).set(review);
+      db.ref('reviews/' + ts).set(review).then(() => {
+        loadAndRenderReviews();
+      });
     });
 
     document.getElementById('reviewForm').reset();
@@ -503,22 +505,18 @@ function initReviews() {
     btn.textContent = '✓ Avis publié !';
     btn.style.background = '#3ecf6a';
     setTimeout(() => { btn.textContent = 'Publier mon avis'; btn.style.background = ''; }, 2500);
-
-    // Affichage immédiat local en attendant Firebase
-    renderReviews();
   });
 }
 
-function renderReviews() {
+function loadAndRenderReviews() {
   const list  = document.getElementById('reviewsList');
   const empty = document.getElementById('noReviews');
   if (!list) return;
 
-  // Lecture Firebase en temps réel
   getFirebaseDb(db => {
-    db.ref('reviews').on('value', snapshot => {
-      const data = snapshot.val() || {};
-      const reviews = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
+    db.ref('reviews').once('value').then(snapshot => {
+      const data    = snapshot.val() || {};
+      const reviews = Object.values(data).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
       if (reviews.length === 0) {
         list.innerHTML = '';
@@ -529,16 +527,20 @@ function renderReviews() {
       if (empty) empty.style.display = 'none';
       list.innerHTML = reviews.map(r => `
         <div class="review-card">
-          <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+          <div class="review-stars">${'★'.repeat(r.rating || 0)}${'☆'.repeat(5 - (r.rating || 0))}</div>
           <p>"${r.comment}"</p>
           <div class="review-author">
-            <div class="review-avatar">${r.name.charAt(0).toUpperCase()}</div>
-            <div><strong>${r.name}</strong><span>${r.formule} · ${r.date}</span></div>
+            <div class="review-avatar">${(r.name || '?').charAt(0).toUpperCase()}</div>
+            <div><strong>${r.name || ''}</strong><span>${r.formule || ''} · ${r.date || ''}</span></div>
           </div>
         </div>
       `).join('');
     });
   });
+}
+
+function renderReviews() {
+  loadAndRenderReviews();
 }
 
 /*
