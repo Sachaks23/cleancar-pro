@@ -685,3 +685,27 @@ a { text-decoration: none; }
 .svc-combo-savings { font-size: .82rem; color: var(--text2); margin: 10px 0; padding: 8px 12px; background: rgba(26,114,216,.06); border-radius: 8px; border-left: 3px solid var(--gold); }
 .tarif-promo-tag { background: rgba(62,207,106,.15); color: #3ecf6a; border-radius: 5px; padding: 1px 7px; font-size: .7rem; font-weight: 700; margin-left: 6px; }
 .price-old-sm { text-decoration: line-through; color: var(--text3); font-size: .82rem; margin-right: 4px; }
+
+/* ════ BANDEAU CONFIANCE / FLYER ════ */
+.trust-band { background: var(--bg1); border-top: 1px solid var(--b); border-bottom: 1px solid var(--b); padding: 80px 0; }
+.trust-band-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+.trust-tag { display: inline-block; background: rgba(26,114,216,.12); color: var(--gold); border: 1px solid rgba(26,114,216,.25); border-radius: 6px; padding: 4px 12px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 16px; }
+.trust-title { font-size: 1.55rem; font-weight: 800; line-height: 1.25; margin-bottom: 14px; color: var(--text); }
+.trust-sub { font-size: .9rem; color: var(--text2); line-height: 1.65; margin-bottom: 28px; }
+.trust-promo-box { background: linear-gradient(135deg, rgba(26,114,216,.1), rgba(62,207,106,.06)); border: 1px solid rgba(26,114,216,.3); border-radius: 14px; padding: 22px 24px; }
+.trust-promo-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--text3); margin-bottom: 8px; }
+.trust-promo-code { font-size: 2rem; font-weight: 900; letter-spacing: 3px; color: var(--gold); font-family: 'Inter', monospace; margin-bottom: 10px; }
+.trust-promo-info { font-size: .8rem; color: var(--text2); line-height: 1.55; }
+.trust-promo-info strong { color: var(--text); }
+.trust-card { background: var(--bg2); border: 1px solid var(--b); border-radius: 14px; padding: 20px 22px; }
+.trust-card-title { font-size: .88rem; font-weight: 700; color: var(--text); margin-bottom: 14px; }
+.trust-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.trust-list li { display: flex; align-items: flex-start; gap: 10px; font-size: .83rem; color: var(--text2); line-height: 1.45; }
+.trust-list li a { color: var(--text2); text-decoration: none; }
+.trust-list li a:hover { color: var(--gold); }
+.tl-icon { flex-shrink: 0; font-size: .85rem; }
+@media (max-width: 768px) {
+  .trust-band-inner { grid-template-columns: 1fr; gap: 36px; }
+  .trust-promo-code { font-size: 1.6rem; }
+  .trust-title { font-size: 1.25rem; }
+}
